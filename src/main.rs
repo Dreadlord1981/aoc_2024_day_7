@@ -1,6 +1,7 @@
 use std::{fs, time::Instant};
 
 use itertools::Itertools;
+use rayon::prelude::*;
 
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 struct Equation {
@@ -22,6 +23,8 @@ impl Equation {
 				"+" => s += self.values[i + 1],
 				"*" => s *= self.values[i + 1],
 				"||" => {
+					// let val = format!("{}{}", s, self.values[i + 1]).parse::<u64>().unwrap();
+					// s = val;
 					let digits = (self.values[i + 1] as f64).log10().floor() as u64 + 1;
 					s = (s * 10u64.pow(digits as u32) + self.values[i + 1]) as u64;
 				}
@@ -53,7 +56,7 @@ fn main() {
 
 	let now = Instant::now();
 
-	let val: u64 = equations.iter().filter(|e| {
+	let val: u64 = equations.par_iter().filter(|e| {
 		e.is_valid(vec!["+", "*"])
 	})
 	.map(|e| e.result)
@@ -67,7 +70,7 @@ fn main() {
 
 	let now = Instant::now();
 
-	let val: u64 = equations.iter().filter(|e| {
+	let val: u64 = equations.par_iter().filter(|e| {
 		e.is_valid(vec!["+", "*", "||"])
 	})
 	.map(|e| e.result)
